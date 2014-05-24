@@ -113,22 +113,14 @@ class TxtAnalyzer(Analyzer):
             dealtToRegex = r"Dealt to (.*) \[(..) (..)\]"
             pfActionRegex = r"(.*): (folds|calls|checks|raises)( \$([0-9\.]*))?( to \$([0-9\.]*))?"
         
-        postedBB = False
+
         for line in pfLines:
             searchObj = re.search(blindRegex, line)
             if(searchObj):
                 if(searchObj.group(2) == "small"):
                     self.pfActions.append((searchObj.group(1),"S"))
                 else:
-                    #someone already posted bb
-                    #map pre bb poster to normal caller
-                    if(postedBB):
-                        pass
-                        # TODO : handle bb pre poster in testsuite
-                        #self.pfActions.append((searchObj.group(1),"C"))
-                    else:
-                        self.pfActions.append((searchObj.group(1),"B"))
-                        postedBB = True
+                    self.pfActions.append((searchObj.group(1),"B"))
                 
             searchObj = re.search(dealtToRegex, line)
             if(searchObj):

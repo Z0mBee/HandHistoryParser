@@ -20,7 +20,7 @@ if sys.platform == 'win32':
 
 options = {
     'build_exe': {
-        'includes': 'atexit',
+        'icon' : 'images/transfer.ico',
 		'include_files': [
 			'images/transfer.png'
 		]
