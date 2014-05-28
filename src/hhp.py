@@ -5,7 +5,7 @@ from handprinter import HandPrinter
 
 class HandHistoryParser:
     
-    def parseHistoryTexts(self, historyTexts):
+    def parseHistoryTexts(self, historyTexts, ignoreBetSize, useSimpleNames):
         """Parse list of input histories and return tuple list with hand id and parsed history"""
         
         parseResult = []
@@ -13,7 +13,7 @@ class HandHistoryParser:
         for historyText in historyTexts:
             analyzer = TxtAnalyzer(historyText)
             analyzer.analyze()
-            handprinter = HandPrinter(analyzer)
+            handprinter = HandPrinter(analyzer,ignoreBetSize, useSimpleNames)
             parsedHistory = handprinter.printHand()
             parseResult.append((analyzer.handId, parsedHistory))
             
@@ -28,7 +28,7 @@ class HandHistoryParser:
                 analyzer = TxtAnalyzer(history)
                 analyzer.analyze()
             
-            handprinter = HandPrinter(analyzer)
+            handprinter = HandPrinter(analyzer,False,False)
             handprinter.printHandToFile(outputFile)    
             
             print("Parsing successful")

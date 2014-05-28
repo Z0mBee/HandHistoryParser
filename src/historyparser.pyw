@@ -131,7 +131,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
                             with open(os.path.join(inputFolder,filename)) as file:
                                 text = file.read()
                             historyTexts = self.splitHistoryText(text)
-                            parsedTexts = hhp.parseHistoryTexts(historyTexts)
+                            parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),self.checkBoxSimpleNames.isChecked())
                             self.writeHistory(parsedTexts)
                         except AnalyzerException as e:
                             QApplication.restoreOverrideCursor()
@@ -139,7 +139,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
             #parse text
             else:
                 historyTexts = self.splitHistoryText(text)
-                parsedTexts = hhp.parseHistoryTexts(historyTexts)
+                parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),self.checkBoxSimpleNames.isChecked())
                 self.writeHistory(parsedTexts)
                  
         except (IOError, OSError) as e:

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'historyparser.ui'
 #
-# Created: Sat May 10 17:22:56 2014
+# Created: Tue May 27 23:26:22 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,12 +26,12 @@ except AttributeError:
 class Ui_HandHistoryParserDlg(object):
     def setupUi(self, HandHistoryParserDlg):
         HandHistoryParserDlg.setObjectName(_fromUtf8("HandHistoryParserDlg"))
-        HandHistoryParserDlg.resize(362, 471)
+        HandHistoryParserDlg.resize(367, 569)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("images/transfer.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("images/transfer.ico")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         HandHistoryParserDlg.setWindowIcon(icon)
-        self.verticalLayout_3 = QtGui.QVBoxLayout(HandHistoryParserDlg)
-        self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
+        self.verticalLayout_4 = QtGui.QVBoxLayout(HandHistoryParserDlg)
+        self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
         self.groupBox = QtGui.QGroupBox(HandHistoryParserDlg)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.verticalLayout = QtGui.QVBoxLayout(self.groupBox)
@@ -68,7 +68,7 @@ class Ui_HandHistoryParserDlg(object):
         self.buttonInputFolder.setObjectName(_fromUtf8("buttonInputFolder"))
         self.horizontalLayout.addWidget(self.buttonInputFolder)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.verticalLayout_3.addWidget(self.groupBox)
+        self.verticalLayout_4.addWidget(self.groupBox)
         self.groupBox_2 = QtGui.QGroupBox(HandHistoryParserDlg)
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.groupBox_2)
@@ -99,7 +99,18 @@ class Ui_HandHistoryParserDlg(object):
         self.buttonOutputFolder.setObjectName(_fromUtf8("buttonOutputFolder"))
         self.horizontalLayout_4.addWidget(self.buttonOutputFolder)
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
-        self.verticalLayout_3.addWidget(self.groupBox_2)
+        self.verticalLayout_4.addWidget(self.groupBox_2)
+        self.groupBox_3 = QtGui.QGroupBox(HandHistoryParserDlg)
+        self.groupBox_3.setObjectName(_fromUtf8("groupBox_3"))
+        self.horizontalLayout_6 = QtGui.QHBoxLayout(self.groupBox_3)
+        self.horizontalLayout_6.setObjectName(_fromUtf8("horizontalLayout_6"))
+        self.checkBoxIgnoreBetSize = QtGui.QCheckBox(self.groupBox_3)
+        self.checkBoxIgnoreBetSize.setObjectName(_fromUtf8("checkBoxIgnoreBetSize"))
+        self.horizontalLayout_6.addWidget(self.checkBoxIgnoreBetSize)
+        self.checkBoxSimpleNames = QtGui.QCheckBox(self.groupBox_3)
+        self.checkBoxSimpleNames.setObjectName(_fromUtf8("checkBoxSimpleNames"))
+        self.horizontalLayout_6.addWidget(self.checkBoxSimpleNames)
+        self.verticalLayout_4.addWidget(self.groupBox_3)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setContentsMargins(0, -1, 10, -1)
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
@@ -108,7 +119,7 @@ class Ui_HandHistoryParserDlg(object):
         self.buttonParse = QtGui.QPushButton(HandHistoryParserDlg)
         self.buttonParse.setObjectName(_fromUtf8("buttonParse"))
         self.horizontalLayout_5.addWidget(self.buttonParse)
-        self.verticalLayout_3.addLayout(self.horizontalLayout_5)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_5)
 
         self.retranslateUi(HandHistoryParserDlg)
         QtCore.QMetaObject.connectSlotsByName(HandHistoryParserDlg)
@@ -126,5 +137,8 @@ class Ui_HandHistoryParserDlg(object):
         self.buttonOutputFile.setText(_translate("HandHistoryParserDlg", "Select File", None))
         self.label_5.setText(_translate("HandHistoryParserDlg", "Output Folder", None))
         self.buttonOutputFolder.setText(_translate("HandHistoryParserDlg", "Select Folder", None))
+        self.groupBox_3.setTitle(_translate("HandHistoryParserDlg", "Options", None))
+        self.checkBoxIgnoreBetSize.setText(_translate("HandHistoryParserDlg", "Ignore Bet Size", None))
+        self.checkBoxSimpleNames.setText(_translate("HandHistoryParserDlg", "Use Simple Names", None))
         self.buttonParse.setText(_translate("HandHistoryParserDlg", "Parse", None))
 

@@ -22,7 +22,7 @@ options = {
     'build_exe': {
         'icon' : 'images/transfer.ico',
 		'include_files': [
-			'images/transfer.png'
+			'images/transfer.ico'
 		]
     }
 }

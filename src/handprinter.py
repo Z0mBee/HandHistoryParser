@@ -4,8 +4,11 @@ class HandPrinter:
     Prints analyzed hands
     '''
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer, ignoreBetSize, useSimpleNames):
         self.analyzer = analyzer;
+        self.ingoreBetSize = ignoreBetSize
+        self.useSimpleNames = useSimpleNames
+        self._findSimplePlayerNames()
         
     def _getHeaderText(self):
         text = "[table]\n"
@@ -20,7 +23,7 @@ class HandPrinter:
         for idx, playerBalance in enumerate(self.analyzer.playerBalances):
             if idx != 0:
                 text += ", "
-            text += playerBalance[0] + " "+ playerBalance[1] 
+            text += self._getPlayerName(playerBalance[0]) + " "+ playerBalance[1] 
         text += "\n"
         return text
     
@@ -33,20 +36,31 @@ class HandPrinter:
             if idx != 0:
                 text += ", "
             
+            playerName = self._getPlayerName(action[0])
             #hero action
-            if(action[0] == hero and action[1] not in ('S', 'B')):
+            if(playerName == hero and action[1] not in ('S', 'B')):
                 if(raised):
-                    text += action[0] + " can " + possibeActionsRaised + " do " + action[1]
+                    text += playerName + " can " + possibeActionsRaised + " do " + self._getHeroAction(action[1])
                 else:
-                    text += action[0] + " can " + possibleActionsUnraised + " do " + action[1]
+                    text += playerName + " can " + possibleActionsUnraised + " do " + self._getHeroAction(action[1])
             #non-hero action
             else:
-                text += action[0] + " "+ action[1]
+                text += playerName + " "+ action[1]
                  
-            if(action[1] == 'A' or action[1].find('R') != -1 or (action[1] == 'B' and action[0] != hero)):
+            if(action[1] == 'A' or action[1].find('R') != -1 or (action[1] == 'B' and action[1] != hero)):
                 raised = True
         text += "\n"
         return text
+    
+    def _getHeroAction(self,action):
+        if(self.ingoreBetSize):
+            return action[0];
+        return action;
+    
+    def _getPlayerName(self,name):
+        if(self.useSimpleNames and name in self.simpleName):
+            return self.simpleName[name];
+        return name;
     
     def _getPreflopText(self):
         text = "[preflop]\n"
@@ -79,6 +93,22 @@ class HandPrinter:
         output = self.printHand()
         with open(filename,'w') as file:
             file.write(output)
+            
+    def _findSimplePlayerNames(self):
+        players = []
+        self.simpleName ={}
+                
+        #find players
+        for playerAction in self.analyzer.pfActions:
+            if playerAction[0] not in players:
+                players.append(playerAction[0])
+         
+        #map player names with simple names       
+        for i,player in enumerate(players):
+            if player == self.analyzer.hero:
+                self.simpleName[player] = "Hero"
+            else:
+                self.simpleName[player] = "P" + str(i)
         
     def printHand(self):
         output = self._getHeaderText()
