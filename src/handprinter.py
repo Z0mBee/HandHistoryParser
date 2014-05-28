@@ -38,7 +38,7 @@ class HandPrinter:
             
             playerName = self._getPlayerName(action[0])
             #hero action
-            if(playerName == hero and action[1] not in ('S', 'B')):
+            if(action[0] == hero and action[1] not in ('S', 'B')):
                 if(raised):
                     text += playerName + " can " + possibeActionsRaised + " do " + self._getHeroAction(action[1])
                 else:
@@ -95,16 +95,10 @@ class HandPrinter:
             file.write(output)
             
     def _findSimplePlayerNames(self):
-        players = []
         self.simpleName ={}
-                
-        #find players
-        for playerAction in self.analyzer.pfActions:
-            if playerAction[0] not in players:
-                players.append(playerAction[0])
          
         #map player names with simple names       
-        for i,player in enumerate(players):
+        for i,player in enumerate(self.analyzer.players):
             if player == self.analyzer.hero:
                 self.simpleName[player] = "Hero"
             else:

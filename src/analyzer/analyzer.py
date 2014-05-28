@@ -21,6 +21,7 @@ class Analyzer:
         self.flopActions = []
         self.turnActions = []
         self.riverActions = []
+        self.players = []
         
 class AnalyzerException(Exception):
     

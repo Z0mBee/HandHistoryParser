@@ -135,6 +135,11 @@ class TxtAnalyzer(Analyzer):
         if(len(self.pfActions) == 0):
             raise AnalyzerException("Could not find any preflop actions", self.handId)
         
+        #find players
+        for playerAction in self.pfActions:
+            if playerAction[0] not in self.players:
+                self.players.append(playerAction[0])
+        
     def _analyzeSeats(self, lines):
         
         if(self.pokerSite == PokerSite.PARTY):
@@ -204,7 +209,14 @@ class TxtAnalyzer(Analyzer):
             self.pokerSite = PokerSite.STARS
         else:
             raise AnalyzerException('Unknown hand history format. Line: '+ headerLine)
-        
+   
+    def _removeInactivePlayers(self):
+        """ Remove all inactive players without preflop actions """
+        activePlayerBalances = []
+        for playerBalance in self.playerBalances:
+            if(playerBalance[0] in self.players): # Check if name is in players list
+                activePlayerBalances.append(playerBalance) 
+        self.playerBalances = activePlayerBalances    
         
     def analyze(self):
         "Start analyzing hand history"
@@ -262,6 +274,7 @@ class TxtAnalyzer(Analyzer):
         self._analyzePreflop(preflopLines)
         if(len(postflopLines) > 0):
             self._analyzePostflop(postflopLines)
+        self._removeInactivePlayers()
             
 
 class PokerSite():
