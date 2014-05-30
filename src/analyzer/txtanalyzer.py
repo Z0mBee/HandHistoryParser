@@ -16,6 +16,9 @@ class TxtAnalyzer(Analyzer):
         
         if(searchObj):
             player = searchObj.group(1)
+            if " " in player: # add quotes if player name contains whitespace
+                player = "\""+ player + "\""
+            
             action = searchObj.group(2)
             amount = None
             if(action == 'folds'):
@@ -152,7 +155,11 @@ class TxtAnalyzer(Analyzer):
         for line in lines:
             searchObj = re.search(seatRegex, line)
             if(searchObj):
-                self.playerBalances.append((searchObj.group(1), searchObj.group(2)))
+                player = searchObj.group(1)
+                if " " in player: # add quotes if player name contains whitespace
+                    player= "\"" + player + "\""
+                
+                self.playerBalances.append((player, searchObj.group(2)))
         if(len(self.playerBalances) == 0):
             raise AnalyzerException("Could not find any player balances", self.handId)
         
