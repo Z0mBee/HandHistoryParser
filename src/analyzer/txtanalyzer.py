@@ -16,8 +16,7 @@ class TxtAnalyzer(Analyzer):
         
         if(searchObj):
             player = searchObj.group(1)
-            if " " in player: # add quotes if player name contains whitespace
-                player = "\""+ player + "\""
+            player = self._correctPlayerName(player)
             
             action = searchObj.group(2)
             amount = None
@@ -43,6 +42,12 @@ class TxtAnalyzer(Analyzer):
             else:
                 actions = (player,action)
         return actions
+    
+    def _correctPlayerName(self,name):
+        "Add quotes if player name contains whitespace or no letters"
+        if not re.search(".*[a-zA-Z]+.*",name) or " " in name: 
+            name= "\"" + name + "\""
+        return name
     
     def _analyzePostflop(self, lines):
         
@@ -120,10 +125,12 @@ class TxtAnalyzer(Analyzer):
         for line in pfLines:
             searchObj = re.search(blindRegex, line)
             if(searchObj):
+                player = searchObj.group(1)
+                player = self._correctPlayerName(player)
                 if(searchObj.group(2) == "small"):
-                    self.pfActions.append((searchObj.group(1),"S"))
+                    self.pfActions.append((player,"S"))
                 else:
-                    self.pfActions.append((searchObj.group(1),"B"))
+                    self.pfActions.append((player,"B"))
                 
             searchObj = re.search(dealtToRegex, line)
             if(searchObj):
@@ -156,8 +163,7 @@ class TxtAnalyzer(Analyzer):
             searchObj = re.search(seatRegex, line)
             if(searchObj):
                 player = searchObj.group(1)
-                if " " in player: # add quotes if player name contains whitespace
-                    player= "\"" + player + "\""
+                player = self._correctPlayerName(player)
                 
                 self.playerBalances.append((player, searchObj.group(2)))
         if(len(self.playerBalances) == 0):

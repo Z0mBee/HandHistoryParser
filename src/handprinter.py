@@ -30,6 +30,7 @@ class HandPrinter:
     def _getActionString(self,actions,hero):
         text = "Actions = "
         raised = False
+        heroIsBB = False
         possibleActionsUnraised = "FKRA"
         possibeActionsRaised = "FCRA"
         for idx, action in enumerate(actions):
@@ -37,18 +38,25 @@ class HandPrinter:
                 text += ", "
             
             playerName = self._getPlayerName(action[0])
+            
+            #check if hero is bb
+            if(action[0] == hero and action[1] == 'B'):
+                heroIsBB = True
+            
             #hero action
             if(action[0] == hero and action[1] not in ('S', 'B')):
-                if(raised):
+                if(raised and not heroIsBB):
                     text += playerName + " can " + possibeActionsRaised + " do " + self._getHeroAction(action[1])
                 else:
                     text += playerName + " can " + possibleActionsUnraised + " do " + self._getHeroAction(action[1])
+                    heroIsBB = False
             #non-hero action
             else:
                 text += playerName + " "+ action[1]
                  
-            if(action[1] == 'A' or action[1].find('R') != -1 or (action[1] == 'B' and action[1] != hero)):
+            if(action[1] == 'A' or action[1].find('R') != -1 or (action[1] == 'B' and not action[0] == hero)):
                 raised = True
+
         text += "\n"
         return text
     
