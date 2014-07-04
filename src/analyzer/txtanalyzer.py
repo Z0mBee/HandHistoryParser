@@ -13,6 +13,9 @@ class TxtAnalyzer(Analyzer):
         
         if(self.pokerSite == PokerSite.STARS):
             raiseAmountPos = 6
+        elif(self.pokerSite == PokerSite.IPOKER):
+            betAmountPos = 5
+            raiseAmountPos = 5
         
         if(searchObj):
             player = searchObj.group(1)
@@ -20,19 +23,19 @@ class TxtAnalyzer(Analyzer):
             
             action = searchObj.group(2)
             amount = None
-            if(action == 'folds'):
+            if(action == 'folds' or action == 'Fold'):
                 action = 'F'
-            elif(action == 'checks'):
+            elif(action == 'checks' or action == 'Check'):
                 action = 'K'
-            elif(action == 'calls'):
+            elif(action == 'calls' or action == 'Call'):
                 action = 'C'
-            elif(action == 'bets'):
+            elif(action == 'bets' or action == 'Bet'):
                 action = 'R'
                 amount = searchObj.group(betAmountPos)
-            elif(action == 'raises'):
+            elif(action == 'raises' or action == 'Raise'):
                 action = 'R'
                 amount = searchObj.group(raiseAmountPos)
-            elif(action == 'is all-In'):
+            elif(action == 'is all-In' or action == 'Allin'):
                 action = 'A'
             else:
                 raise AnalyzerException("Unknown player action found. Action : " + action,self.handId)
@@ -58,31 +61,35 @@ class TxtAnalyzer(Analyzer):
         riverCardPos = 2
         
         if(self.pokerSite == PokerSite.PARTY):
-            pfActionRegex = r"(.*) (folds|calls|checks|raises|bets|is all-In)( \[\$([0-9\.]*) USD\])?"
+            pfActionRegex = r"(.*) (folds|calls|checks|raises|bets|is all-In)( \[.([0-9\.]*) .+\])?"
             cardRegex = r"\*\* Dealing (Flop|Turn|River) \*\* \[ (..)(, (..), (..))? \]"
         elif(self.pokerSite == PokerSite.POKER888):
-            pfActionRegex = r"(.*) (folds|calls|checks|raises|bets)( \[\$([0-9\.]*)\])?"
+            pfActionRegex = r"(.*) (folds|calls|checks|raises|bets)( \[.([0-9\.]*)\])?"
             cardRegex = r"\*\* Dealing (flop|turn|river) \*\* \[ (..)(, (..), (..))? \]"
         elif(self.pokerSite == PokerSite.STARS):
-            pfActionRegex = r"(.*): (folds|calls|checks|raises|bets)( \$([0-9\.]*))?( to \$([0-9\.]*))?"
+            pfActionRegex = r"(.*): (folds|calls|checks|raises|bets)( .([0-9\.]*))?( to .([0-9\.]*))?"
             cardRegex = r"\*\*\* (FLOP|TURN|RIVER) \*\*\* \[(..) (..) (..)( (..))?\]( \[(..)\])?"
             flopCard1Pos = 2
             flopCard2Pos = 3
             flopCard3Pos = 4
             turnCardPos = 8
             riverCardPos = 8
+        elif(self.pokerSite == PokerSite.IPOKER):
+            pfActionRegex = r"(.*): (Fold|Call|Bet|Check|Raise|Allin)( \(NF\) )?( Allin )?( .([0-9\.]*))?"   
+            cardRegex = r"\*\*\* (FLOP|TURN|RIVER) \*\*\* \[(..)( (..) (..))?\]"
+          
         
         for line in lines:
             searchObj = re.search(cardRegex, line)
             if(searchObj):
                 if(searchObj.group(1) in ("flop","Flop","FLOP")):
-                    self.flopCards.append(searchObj.group(flopCard1Pos))
-                    self.flopCards.append(searchObj.group(flopCard2Pos))
-                    self.flopCards.append(searchObj.group(flopCard3Pos))
+                    self.flopCards.append(self._parseCardFormat(searchObj.group(flopCard1Pos)))
+                    self.flopCards.append(self._parseCardFormat(searchObj.group(flopCard2Pos)))
+                    self.flopCards.append(self._parseCardFormat(searchObj.group(flopCard3Pos)))
                 elif(searchObj.group(1)  in ("turn","Turn","TURN")):
-                    self.turnCard = searchObj.group(turnCardPos)
+                    self.turnCard = self._parseCardFormat(searchObj.group(turnCardPos))
                 elif(searchObj.group(1)  in ("river","River","RIVER")):
-                    self.riverCard = searchObj.group(riverCardPos)
+                    self.riverCard = self._parseCardFormat(searchObj.group(riverCardPos))
                 else:
                     raise AnalyzerException("Unknown postflop value")
                 
@@ -103,6 +110,18 @@ class TxtAnalyzer(Analyzer):
             raise AnalyzerException("Missing turn card", self.handId)
         if(not self.riverCard and len(self.riverActions) > 0):
             raise AnalyzerException("Missing river card", self.handId)
+        
+    def _parseCardFormat(self,card):
+        """ Parse card format"""
+        
+        # Parse from IPoker card format to normal format
+        if(self.pokerSite == PokerSite.IPOKER):
+            parsedCard = ""
+            parsedCard += card[1]
+            parsedCard += card[0].lower()
+            return parsedCard
+        else:
+            return card
     
     
     def _analyzePreflop(self, pfLines):
@@ -111,15 +130,19 @@ class TxtAnalyzer(Analyzer):
         
         
         if(self.pokerSite == PokerSite.PARTY):
-            pfActionRegex = r"(.*) (folds|calls|checks|raises|is all-In)( \[\$([0-9\.]*) USD\])?"
+            pfActionRegex = r"(.*) (folds|calls|checks|raises|is all-In)( \[.([0-9\.]*) .+\])?"
             dealtToRegex = r"Dealt to (.*) \[  (..) (..) \]"
         elif(self.pokerSite == PokerSite.POKER888):
-            pfActionRegex = r"(.*) (folds|calls|checks|raises)( \[\$([0-9\.]*)\])?"
+            pfActionRegex = r"(.*) (folds|calls|checks|raises)( \[.([0-9\.]*)\])?"
             dealtToRegex = r"Dealt to (.*) \[ (..), (..) \]"
         elif(self.pokerSite == PokerSite.STARS):
             blindRegex = r"(.*): posts (small|big) blind"
             dealtToRegex = r"Dealt to (.*) \[(..) (..)\]"
-            pfActionRegex = r"(.*): (folds|calls|checks|raises)( \$([0-9\.]*))?( to \$([0-9\.]*))?"
+            pfActionRegex = r"(.*): (folds|calls|checks|raises)( .([0-9\.]*))?( to .([0-9\.]*))?"
+        elif(self.pokerSite == PokerSite.IPOKER):
+            blindRegex = r"(.*): Post (SB|BB) .*"
+            dealtToRegex = r"Dealt to (.*) \[(..) (..)\]"
+            pfActionRegex = r"(.*): (Fold|Call|Check|Raise|Allin)( \(NF\) )?( Allin )?( .([0-9\.]*))?"
         
 
         for line in pfLines:
@@ -127,7 +150,7 @@ class TxtAnalyzer(Analyzer):
             if(searchObj):
                 player = searchObj.group(1)
                 player = self._correctPlayerName(player)
-                if(searchObj.group(2) == "small"):
+                if(searchObj.group(2) == "small" or searchObj.group(2) == "SB"):
                     self.pfActions.append((player,"S"))
                 else:
                     self.pfActions.append((player,"B"))
@@ -135,8 +158,8 @@ class TxtAnalyzer(Analyzer):
             searchObj = re.search(dealtToRegex, line)
             if(searchObj):
                 self.hero = searchObj.group(1)
-                self.heroCards.append(searchObj.group(2))
-                self.heroCards.append(searchObj.group(3))
+                self.heroCards.append(self._parseCardFormat(searchObj.group(2)))
+                self.heroCards.append(self._parseCardFormat(searchObj.group(3)))
                 
             searchObj = re.search(pfActionRegex, line)
             if(searchObj):
@@ -153,11 +176,13 @@ class TxtAnalyzer(Analyzer):
     def _analyzeSeats(self, lines):
         
         if(self.pokerSite == PokerSite.PARTY):
-            seatRegex = r"Seat [0-9]+: (.*) \( \$([0-9\.]*) USD \)"
+            seatRegex = r"Seat [0-9]+: (.*) \( .([0-9\.]*) .+ \)"
         elif(self.pokerSite == PokerSite.POKER888):
-            seatRegex = r"Seat [0-9]+: (.*) \( \$([0-9\.]*) \)"
+            seatRegex = r"Seat [0-9]+: (.*) \( .([0-9\.]*) \)"
         elif(self.pokerSite == PokerSite.STARS):
-            seatRegex = r"Seat [0-9]+: (.*) \(\$([0-9\.]*) in chips\)"
+            seatRegex = r"Seat [0-9]+: (.*) \(.([0-9\.]*) in chips\)"
+        elif(self.pokerSite == PokerSite.IPOKER):
+            seatRegex = r"Seat [0-9]+: (.*) \(.([0-9\.]*) in chips\)( DEALER)?"
         
         for line in lines:
             searchObj = re.search(seatRegex, line)
@@ -179,13 +204,20 @@ class TxtAnalyzer(Analyzer):
         
         if(self.pokerSite == PokerSite.PARTY):
             gameIdRegex = r"Game ([0-9]*) \*\*\*\*\*"
-            blindRegex = r"\$([0-9\.]*)/\$([0-9\.]*) USD (.*) Texas Hold'em"
+            blindRegex = r".([0-9\.]*)/.([0-9\.]*) .+ (.*) Texas Hold'em"
         elif(self.pokerSite == PokerSite.POKER888):
             gameIdRegex = r"Game ([0-9]*) \*\*\*\*\*"
-            blindRegex = r"\$([0-9\.]*)/\$([0-9\.]*) Blinds (.*) Holdem"
+            blindRegex = r".([0-9\.]*)/.([0-9\.]*) Blinds (.*) Holdem"
         elif(self.pokerSite == PokerSite.STARS):
             gameIdRegex = r"Hand #([0-9]*):"
-            blindRegex = r"Hold'em (.*) \(\$([0-9\.]*)/\$([0-9\.]*)( USD)?\)"
+            blindRegex = r"Hold'em (.*) \(.([0-9\.]*)/.([0-9\.]*).*\)"
+            blindIdLine = 0
+            sbPos = 2
+            bbPos = 3
+            gameTypePos = 1
+        elif(self.pokerSite == PokerSite.IPOKER):
+            gameIdRegex = r"GAME #([0-9]*):"
+            blindRegex = r"Hold'em  (.*) .([0-9\.]*)/.([0-9\.]*)"
             blindIdLine = 0
             sbPos = 2
             bbPos = 3
@@ -203,6 +235,10 @@ class TxtAnalyzer(Analyzer):
             self.bb = searchObj.group(bbPos)
             if(searchObj.group(gameTypePos) in ("No Limit", "NL")):
                 self.gameType = "NL"
+            elif(searchObj.group(gameTypePos) in ("Pot Limit", "PL")):
+                self.gameType = "PL"
+            elif(searchObj.group(gameTypePos) in ("Fixed Limit", "FL")):
+                self.gameType = "FL"
             else:
                 raise AnalyzerException("Unknown game type. Type: "+searchObj.group(gameTypePos),self.handId)
         else:
@@ -220,6 +256,8 @@ class TxtAnalyzer(Analyzer):
             self.pokerSite = PokerSite.PARTY
         elif(headerLine.find('PokerStars') != -1):
             self.pokerSite = PokerSite.STARS
+        elif(headerLine.find('GAME') != -1):
+            self.pokerSite = PokerSite.IPOKER
         else:
             raise AnalyzerException('Unknown hand history format. Line: '+ headerLine)
    
@@ -252,9 +290,10 @@ class TxtAnalyzer(Analyzer):
         elif(self.pokerSite == PokerSite.POKER888):
             preflopLineSep = "** Dealing flop **"
             postflopLineSep = "** Summary **" 
-        elif(self.pokerSite == PokerSite.STARS):
+        elif(self.pokerSite == PokerSite.STARS or self.pokerSite == PokerSite.IPOKER):
             preflopLineSep = "*** FLOP ***"
             postflopLineSep = "*** SUMMARY ***"
+            seatLineSep = " Post "
             nrHeaderLines = 2
                    
 
@@ -294,7 +333,8 @@ class PokerSite():
     STARS = 1
     POKER888 = 2
     PARTY = 3
-    UNKNOWN = 4
+    IPOKER = 4
+    UNKNOWN = 5
 
                 
 
