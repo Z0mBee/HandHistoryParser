@@ -1,5 +1,6 @@
 import sys
 import os
+import codecs
 from ui_historyparser import Ui_HandHistoryParserDlg
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -56,9 +57,9 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
         text = ""
                 
         for line in StringIO(historyText):
-            if(line != "\n"):
+            if(line != "\n" and line != "\r\n"):
                 text += line 
-            elif(line == "\n" and text != ""):
+            elif((line == "\n" or line == "\r\n") and text != ""):
                 texts.append(text)
                 text = ""
                 
@@ -111,7 +112,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
             if(inputText):
                 text = inputText        
             elif(inputFile):
-                with open(inputFile) as file:
+                with codecs.open(inputFile,'r','utf8') as file:
                     text = file.read()
             elif(inputFolder):
                 pass
@@ -128,7 +129,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
                 for filename in os.listdir(inputFolder):
                     if filename.endswith(".txt"):
                         try:
-                            with open(os.path.join(inputFolder,filename)) as file:
+                            with codecs.open(os.path.join(inputFolder,filename),'r','utf8') as file:
                                 text = file.read()
                             historyTexts = self.splitHistoryText(text)
                             parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),self.checkBoxSimpleNames.isChecked())

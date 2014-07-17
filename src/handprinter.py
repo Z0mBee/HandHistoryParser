@@ -1,3 +1,4 @@
+from analyzer.txtanalyzer import PokerNetwork
 
 class HandPrinter:
     '''
@@ -15,7 +16,14 @@ class HandPrinter:
         text += "sblind = {0.sb}\n".format(self.analyzer)
         text += "bblind = {0.bb}\n".format(self.analyzer)
         text += "gtype = {0.gameType}\n".format(self.analyzer)
-        
+        if(self.analyzer.pokerNetwork == PokerNetwork.IPOKER):
+            text += "network = IPoker\n"
+        elif(self.analyzer.pokerNetwork == PokerNetwork.POKER888):
+            text += "network = 888Poker\n"
+        elif(self.analyzer.pokerNetwork == PokerNetwork.STARS):
+            text += "network = PokerStars\n"
+        elif(self.analyzer.pokerNetwork == PokerNetwork.PARTY):         
+            text += "network = PartyPoker\n"
         return text
         
     def _getPlayerBalanceText(self):
@@ -31,6 +39,7 @@ class HandPrinter:
         text = "Actions = "
         raised = False
         heroIsBB = False
+        bbRaise = False
         possibleActionsUnraised = "FKRA"
         possibeActionsRaised = "FCRA"
         for idx, action in enumerate(actions):
@@ -39,22 +48,23 @@ class HandPrinter:
             
             playerName = self._getPlayerName(action[0])
             
-            #check if hero is bb
+            #check if hero is bb or posted BB
             if(action[0] == hero and action[1] == 'B'):
                 heroIsBB = True
             
             #hero action
             if(action[0] == hero and action[1] not in ('S', 'B')):
-                if(raised and not heroIsBB):
+                if(raised or (bbRaise and not heroIsBB)):
                     text += playerName + " can " + possibeActionsRaised + " do " + self._getHeroAction(action[1])
                 else:
                     text += playerName + " can " + possibleActionsUnraised + " do " + self._getHeroAction(action[1])
-                    heroIsBB = False
             #non-hero action
             else:
                 text += playerName + " "+ action[1]
-                 
-            if(action[1] == 'A' or action[1].find('R') != -1 or (action[1] == 'B' and not action[0] == hero)):
+            
+            if(action[1] == 'B' and not action[0] == hero):     
+                bbRaise = True
+            elif(action[1] == 'A' or action[1].find('R') != -1):
                 raised = True
 
         text += "\n"

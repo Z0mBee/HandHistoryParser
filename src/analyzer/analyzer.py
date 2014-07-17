@@ -8,6 +8,7 @@ class Analyzer:
     def __init__(self,history):
         self.history = StringIO(history)
         self.handId = None
+        self.pokerNetwork = None
         self.bb = None
         self.sb = None
         self.hero = None
