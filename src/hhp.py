@@ -5,7 +5,7 @@ from handprinter import HandPrinter
 
 class HandHistoryParser:
     
-    def parseHistoryTexts(self, historyTexts, ignoreBetSize, useSimpleNames):
+    def parseHistoryTexts(self, historyTexts, ignoreBetSize, useSimpleNames, excludeNoHeroHH):
         """Parse list of input histories and return tuple list with hand id and parsed history"""
         
         parseResult = []
@@ -13,9 +13,12 @@ class HandHistoryParser:
         for historyText in historyTexts:
             analyzer = TxtAnalyzer(historyText)
             analyzer.analyze()
-            handprinter = HandPrinter(analyzer,ignoreBetSize, useSimpleNames)
-            parsedHistory = handprinter.printHand()
-            parseResult.append((analyzer.handId, parsedHistory))
+            
+            #exclude hand history without hero if option is active
+            if((excludeNoHeroHH and analyzer.hero) or not excludeNoHeroHH):
+                handprinter = HandPrinter(analyzer,ignoreBetSize, useSimpleNames)
+                parsedHistory = handprinter.printHand()
+                parseResult.append((analyzer.handId, parsedHistory))
             
         return parseResult
 

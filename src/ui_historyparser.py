@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'historyparser.ui'
 #
-# Created: Tue May 27 23:26:22 2014
+# Created: Thu Jul 17 11:27:21 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,7 +102,9 @@ class Ui_HandHistoryParserDlg(object):
         self.verticalLayout_4.addWidget(self.groupBox_2)
         self.groupBox_3 = QtGui.QGroupBox(HandHistoryParserDlg)
         self.groupBox_3.setObjectName(_fromUtf8("groupBox_3"))
-        self.horizontalLayout_6 = QtGui.QHBoxLayout(self.groupBox_3)
+        self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
+        self.horizontalLayout_6 = QtGui.QHBoxLayout()
         self.horizontalLayout_6.setObjectName(_fromUtf8("horizontalLayout_6"))
         self.checkBoxIgnoreBetSize = QtGui.QCheckBox(self.groupBox_3)
         self.checkBoxIgnoreBetSize.setObjectName(_fromUtf8("checkBoxIgnoreBetSize"))
@@ -110,12 +112,21 @@ class Ui_HandHistoryParserDlg(object):
         self.checkBoxSimpleNames = QtGui.QCheckBox(self.groupBox_3)
         self.checkBoxSimpleNames.setObjectName(_fromUtf8("checkBoxSimpleNames"))
         self.horizontalLayout_6.addWidget(self.checkBoxSimpleNames)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_6)
+        self.horizontalLayout_7 = QtGui.QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(_fromUtf8("horizontalLayout_7"))
+        self.checkBoxExcludeNoHeroHH = QtGui.QCheckBox(self.groupBox_3)
+        self.checkBoxExcludeNoHeroHH.setObjectName(_fromUtf8("checkBoxExcludeNoHeroHH"))
+        self.horizontalLayout_7.addWidget(self.checkBoxExcludeNoHeroHH)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_7)
         self.verticalLayout_4.addWidget(self.groupBox_3)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setContentsMargins(0, -1, 10, -1)
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
-        spacerItem = QtGui.QSpacerItem(35, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_5.addItem(spacerItem)
+        spacerItem1 = QtGui.QSpacerItem(35, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem1)
         self.buttonParse = QtGui.QPushButton(HandHistoryParserDlg)
         self.buttonParse.setObjectName(_fromUtf8("buttonParse"))
         self.horizontalLayout_5.addWidget(self.buttonParse)
@@ -138,7 +149,8 @@ class Ui_HandHistoryParserDlg(object):
         self.label_5.setText(_translate("HandHistoryParserDlg", "Output Folder", None))
         self.buttonOutputFolder.setText(_translate("HandHistoryParserDlg", "Select Folder", None))
         self.groupBox_3.setTitle(_translate("HandHistoryParserDlg", "Options", None))
-        self.checkBoxIgnoreBetSize.setText(_translate("HandHistoryParserDlg", "Ignore Bet Size", None))
-        self.checkBoxSimpleNames.setText(_translate("HandHistoryParserDlg", "Use Simple Names", None))
+        self.checkBoxIgnoreBetSize.setText(_translate("HandHistoryParserDlg", "Ignore hero bet size", None))
+        self.checkBoxSimpleNames.setText(_translate("HandHistoryParserDlg", "Use simple names", None))
+        self.checkBoxExcludeNoHeroHH.setText(_translate("HandHistoryParserDlg", "Exclude hand histories without hero", None))
         self.buttonParse.setText(_translate("HandHistoryParserDlg", "Parse", None))
 

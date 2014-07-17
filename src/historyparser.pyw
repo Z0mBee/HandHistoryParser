@@ -75,6 +75,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
             if not os.path.exists(defaultFolder):
                     os.makedirs(defaultFolder)
         
+        # single parsed text
         if(len(parsedTexts) == 1):
             outputfile = self.lineEditOutputFile.text()
             if(not outputfile):
@@ -83,9 +84,9 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
                 else:
                     outputfile =  os.path.join(defaultFolder, parsedTexts[0][0] + ".txt");
             
-            with open(outputfile,'w') as file:
+            with codecs.open(outputfile,'w','utf-8') as file:
                 file.write(parsedTexts[0][1])
-                
+        # multiple parsed texts
         elif(len(parsedTexts) > 0):
             outputfolder = self.lineEditOutputFolder.text()
             
@@ -93,11 +94,11 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
                 outputfolder = defaultFolder
                      
             for text in parsedTexts:
-                with open(os.path.join(outputfolder,text[0]+".txt"),'w') as file:
+                with codecs.open(os.path.join(outputfolder,text[0]+".txt"),'w','utf-8') as file:
                     file.write(text[1])
                    
         else:
-            raise ParserException("Unknown error")            
+            raise ParserException("No parse result")            
             
     def parseHistory(self):
         
@@ -132,7 +133,8 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
                             with codecs.open(os.path.join(inputFolder,filename),'r','utf8') as file:
                                 text = file.read()
                             historyTexts = self.splitHistoryText(text)
-                            parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),self.checkBoxSimpleNames.isChecked())
+                            parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),
+                                            self.checkBoxSimpleNames.isChecked(),self.checkBoxExcludeNoHeroHH.isChecked())
                             self.writeHistory(parsedTexts)
                         except AnalyzerException as e:
                             QApplication.restoreOverrideCursor()
@@ -140,7 +142,8 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
             #parse text
             else:
                 historyTexts = self.splitHistoryText(text)
-                parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),self.checkBoxSimpleNames.isChecked())
+                parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),
+                                self.checkBoxSimpleNames.isChecked(),self.checkBoxExcludeNoHeroHH.isChecked())
                 self.writeHistory(parsedTexts)
                  
         except (IOError, OSError) as e:
