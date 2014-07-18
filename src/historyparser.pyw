@@ -113,7 +113,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
             if(inputText):
                 text = inputText        
             elif(inputFile):
-                with codecs.open(inputFile,'r','utf8') as file:
+                with codecs.open(inputFile,'r','utf-8') as file:
                     text = file.read()
             elif(inputFolder):
                 pass
@@ -130,7 +130,7 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
                 for filename in os.listdir(inputFolder):
                     if filename.endswith(".txt"):
                         try:
-                            with codecs.open(os.path.join(inputFolder,filename),'r','utf8') as file:
+                            with codecs.open(os.path.join(inputFolder,filename),'r','utf-8') as file:
                                 text = file.read()
                             historyTexts = self.splitHistoryText(text)
                             parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),
