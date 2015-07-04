@@ -15,7 +15,7 @@ class HandHistoryParser:
             analyzer.analyze()
             
             #exclude hand history without hero if option is active
-            if((excludeNoHeroHH and analyzer.hero) or not excludeNoHeroHH):
+            if((excludeNoHeroHH and analyzer.heroActs) or not excludeNoHeroHH):
                 handprinter = HandPrinter(analyzer,ignoreBetSize, useSimpleNames)
                 parsedHistory = handprinter.printHand()
                 parseResult.append((analyzer.handId, parsedHistory))

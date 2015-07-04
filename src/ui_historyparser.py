@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'historyparser.ui'
 #
-# Created: Thu Jul 17 11:27:21 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 

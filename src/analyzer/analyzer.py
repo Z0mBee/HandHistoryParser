@@ -12,6 +12,7 @@ class Analyzer:
         self.bb = None
         self.sb = None
         self.hero = None
+        self.heroActs = None
         self.playerBalances = []
         self.gameType = None
         self.heroCards = []

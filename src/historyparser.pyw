@@ -12,13 +12,16 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
     def __init__(self, parent=None):
         super(HandHistoryParserDlg, self).__init__(parent)
         self.setupUi(self)
-        
+        self.readSettings()
         self.connect(self.buttonInputFile,SIGNAL("clicked()"), self.selectInputFile)
         self.connect(self.buttonOutputFile,SIGNAL("clicked()"), self.selectOutputFile)
         self.connect(self.buttonInputFolder,SIGNAL("clicked()"), self.selectInputFolder)
         self.connect(self.buttonOutputFolder,SIGNAL("clicked()"), self.selectOutputFolder)
         self.connect(self.buttonParse,SIGNAL("clicked()"), self.parseHistory)
         
+        
+    def closeEvent(self, evnt):    
+      self.writeSettings();
         
     def selectInputFile(self):
         dirName = "."
@@ -155,12 +158,46 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
         finally:
             QApplication.restoreOverrideCursor()
                   
+
+    def writeSettings(self):
+      settings = QSettings()
+      settings.beginGroup("MainWindow")
+      settings.setValue("size", self.size())
+      settings.setValue("pos", self.pos())
+      settings.setValue("inputFile", self.lineEditInputFile.text())
+      settings.setValue("inputFolder", self.lineEditInputFolder.text())
+      settings.setValue("outputFile", self.lineEditOutputFile.text())
+      settings.setValue("outputFolder", self.lineEditOutputFolder.text())
+      settings.setValue("ignoreBetSize", self.checkBoxIgnoreBetSize.isChecked())
+      settings.setValue("simpleNames", self.checkBoxSimpleNames.isChecked())
+      settings.setValue("excludeNoHeroHH", self.checkBoxExcludeNoHeroHH.isChecked())
         
+      settings.endGroup()
+ 
+    def readSettings(self):
+      settings = QSettings()
+      settings.beginGroup("MainWindow")
+      if settings.value("size"):
+        self.resize(settings.value("size"))
+      if settings.value("pos"):
+        self.move(settings.value("pos"))
+      self.lineEditInputFile.setText(settings.value("inputFile"))
+      self.lineEditInputFolder.setText(settings.value("inputFolder"))
+      self.lineEditOutputFile.setText(settings.value("outputFile"))
+      self.lineEditOutputFolder.setText(settings.value("outputFolder"))  
+      self.checkBoxIgnoreBetSize.setChecked(True  if settings.value("ignoreBetSize") == "true" else False)  
+      self.checkBoxSimpleNames.setChecked(True  if settings.value("simpleNames") == "true" else False)
+      self.checkBoxExcludeNoHeroHH.setChecked(True  if settings.value("excludeNoHeroHH") == "true" else False)  
+        
+      settings.endGroup()
         
 class ParserException(Exception):
     pass        
         
 app = QApplication(sys.argv)
+app.setOrganizationName("ZomBee")
+app.setOrganizationDomain("zom.bee")
+app.setApplicationName("Hand History Parser")
 dlg = HandHistoryParserDlg()
 dlg.show()
 sys.exit(app.exec_())

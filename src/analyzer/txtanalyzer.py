@@ -40,6 +40,10 @@ class TxtAnalyzer(Analyzer):
             else:
                 raise AnalyzerException("Unknown player action found. Action : " + action,self.handId)
             
+            #check if hero ever acted
+            if(player == self.hero):
+                self.heroActs = True
+            
             if(amount):
                 actions = (player,action +" "+amount)
             else:
@@ -144,7 +148,7 @@ class TxtAnalyzer(Analyzer):
             pfActionRegex = r"(.*): (folds|calls|checks|raises)( .([0-9\.]*))?( to .([0-9\.]*))?"
         elif(self.pokerNetwork == PokerNetwork.IPOKER):
             blindRegex = r"(.*): Post (SB|BB) .*"
-            dealtToRegex = r"Dealt to (.*) \[(..) (..)\]"
+            dealtToRegex = r"Dealt to (.*) \[(.{2,3}) (.{2,3})\]"
             pfActionRegex = r"(.*): (Fold|Call|Check|Raise|Allin)( \(NF\))?( Allin)?( .([0-9\.]*))?"
         
 
