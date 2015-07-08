@@ -1,5 +1,6 @@
 from io import StringIO
 
+
 class Analyzer:
     '''
     Analyzer base class

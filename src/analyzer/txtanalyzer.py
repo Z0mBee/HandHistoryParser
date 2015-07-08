@@ -1,6 +1,8 @@
 import re
+
 from .analyzer import Analyzer
 from .analyzer import AnalyzerException
+
 
 class TxtAnalyzer(Analyzer):
     "Analyzes txt poker hand history"

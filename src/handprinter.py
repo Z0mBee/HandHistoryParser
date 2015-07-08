@@ -1,5 +1,6 @@
 from analyzer.txtanalyzer import PokerNetwork
 
+
 class HandPrinter:
     '''
     Prints analyzed hands

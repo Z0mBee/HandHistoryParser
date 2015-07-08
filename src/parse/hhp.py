@@ -1,11 +1,13 @@
 import sys
-from analyzer.txtanalyzer import TxtAnalyzer
+
 from analyzer.analyzer import AnalyzerException
+from analyzer.txtanalyzer import TxtAnalyzer
 from handprinter import HandPrinter
+
 
 class HandHistoryParser:
     
-    def parseHistoryTexts(self, historyTexts, ignoreBetSize, useSimpleNames, excludeNoHeroHH):
+    def parseHistoryTexts(self, historyTexts, options):
         """Parse list of input histories and return tuple list with hand id and parsed history"""
         
         parseResult = []
@@ -14,9 +16,18 @@ class HandHistoryParser:
             analyzer = TxtAnalyzer(historyText)
             analyzer.analyze()
             
-            #exclude hand history without hero if option is active
-            if((excludeNoHeroHH and analyzer.heroActs) or not excludeNoHeroHH):
-                handprinter = HandPrinter(analyzer,ignoreBetSize, useSimpleNames)
+            # Skip if option not fulfilled
+            if((options.parseWhenHeroPlays and not analyzer.heroActs)
+               or (options.parseWhenPreflopOnly and len(analyzer.flopActions) > 0)
+               or (options.parseWhenFlopShown and len(analyzer.flopActions) == 0)
+               or (options.parseWhenFlopOnly and (len(analyzer.flopActions) == 0 or len(analyzer.turnActions) > 0))
+               or (options.parseWhenTurnShown and len(analyzer.turnActions) == 0)
+               or (options.parseWhenRiverShown and len(analyzer.riverActions) == 0)
+               ):
+              continue
+            # Print
+            else:
+                handprinter = HandPrinter(analyzer, options.ignoreHeroBetSize, options.useSimpleNames)
                 parsedHistory = handprinter.printHand()
                 parseResult.append((analyzer.handId, parsedHistory))
             
@@ -50,6 +61,21 @@ if __name__ == "__main__":
     hhp = HandHistoryParser()
     hhp.parseHandHistory(inputFile, outputFile)  
 
+class HistoryParserOptions:
+    '''
+    Options for history parser
+    '''
+
+    def __init__(self):
+      self.useSimpleNames = False
+      self.ignoreHeroBetSize = False
+      self.parseWhenHeroPlays = False
+      self.parseWhenPreflopOnly = False
+      self.parseWhenFlopShown = False
+      self.parseWhenFlopOnly = False
+      self.parseWhenTurnShown = False
+      self.parseWhenRiverShown = False
+ 
 
 
 

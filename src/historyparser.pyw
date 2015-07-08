@@ -1,24 +1,32 @@
-import sys
-import os
+from _io import StringIO
 import codecs
-from ui_historyparser import Ui_HandHistoryParserDlg
+import os
+import sys
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from hhp import HandHistoryParser
-from _io import StringIO
+
 from analyzer.analyzer import AnalyzerException
- 
-class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
+from parse.hhp import HistoryParserOptions
+from parse.parserthread import ParserThread
+from ui_historyparser import Ui_HistoryParserWindow
+
+
+class HistoryParserWindow(QMainWindow, Ui_HistoryParserWindow):
+
     def __init__(self, parent=None):
-        super(HandHistoryParserDlg, self).__init__(parent)
-        self.setupUi(self)
-        self.readSettings()
-        self.connect(self.buttonInputFile,SIGNAL("clicked()"), self.selectInputFile)
-        self.connect(self.buttonOutputFile,SIGNAL("clicked()"), self.selectOutputFile)
-        self.connect(self.buttonInputFolder,SIGNAL("clicked()"), self.selectInputFolder)
-        self.connect(self.buttonOutputFolder,SIGNAL("clicked()"), self.selectOutputFolder)
-        self.connect(self.buttonParse,SIGNAL("clicked()"), self.parseHistory)
+        super(HistoryParserWindow, self).__init__(parent)
         
+        self.setupUi(self)         
+        self._connectSignals()      
+        self.readSettings()       
+        
+    def _connectSignals(self):    
+      self.connect(self.buttonInputFile,SIGNAL("clicked()"), self.selectInputFile)
+      self.connect(self.buttonOutputFile,SIGNAL("clicked()"), self.selectOutputFile)
+      self.connect(self.buttonInputFolder,SIGNAL("clicked()"), self.selectInputFolder)
+      self.connect(self.buttonOutputFolder,SIGNAL("clicked()"), self.selectOutputFolder)
+      self.connect(self.buttonParse,SIGNAL("clicked()"), self.parseHistory)
         
     def closeEvent(self, evnt):    
       self.writeSettings();
@@ -51,128 +59,64 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
             dirName = self.lineEditOutputFolder.text()  
         dirname = QFileDialog.getExistingDirectory(self,"Select folder",dirName,QFileDialog.ShowDirsOnly);  
         self.lineEditOutputFolder.setText(dirname)
-            
-            
-    def splitHistoryText(self,historyText):
-        """ Remove empty lines and save history texts in list"""
-        
-        texts = []      
-        text = ""
-                
-        for line in StringIO(historyText):
-            if(line != "\n" and line != "\r\n"):
-                text += line 
-            elif((line == "\n" or line == "\r\n") and text != ""):
-                texts.append(text)
-                text = ""
-                
-        if(text):
-            texts.append(text)
-        return texts
-                
     
-    def writeHistory(self,parsedTexts):
-        
-        defaultFolder = "parsed"
-        if(not self.lineEditOutputFile.text() and not self.lineEditOutputFolder.text()):
-            if not os.path.exists(defaultFolder):
-                    os.makedirs(defaultFolder)
-        
-        # single parsed text
-        if(len(parsedTexts) == 1):
-            outputfile = self.lineEditOutputFile.text()
-            if(not outputfile):
-                if(self.lineEditOutputFolder.text()):
-                    outputfile =  os.path.join(self.lineEditOutputFolder.text(), parsedTexts[0][0] + ".txt");
-                else:
-                    outputfile =  os.path.join(defaultFolder, parsedTexts[0][0] + ".txt");
-            
-            with codecs.open(outputfile,'w','utf-8') as file:
-                file.write(parsedTexts[0][1])
-        # multiple parsed texts
-        elif(len(parsedTexts) > 0):
-            outputfolder = self.lineEditOutputFolder.text()
-            
-            if(not outputfolder):
-                outputfolder = defaultFolder
-                     
-            for text in parsedTexts:
-                with codecs.open(os.path.join(outputfolder,text[0]+".txt"),'w','utf-8') as file:
-                    file.write(text[1])
-                   
+    def updateParseButton(self, value):
+        self.buttonParse.setEnabled(value)   
+        # Show busy cursor 
+        if(value):
+          QApplication.restoreOverrideCursor()  
         else:
-            raise ParserException("No parse result")            
-            
-    def parseHistory(self):
+          QApplication.setOverrideCursor(QCursor(Qt.BusyCursor))
         
-        try:
-        
-            hhp = HandHistoryParser()
-            text = None
-            inputText = self.textEditHistory.toPlainText()
-            inputFile = self.lineEditInputFile.text()
-            inputFolder = self.lineEditInputFolder.text()
+    def displayError(self, title, message):
+      QMessageBox.critical(self, title, message)
+      
+    def displayWarning(self, title, message):    
+      QMessageBox.warning(self.parserWindow, title, message)
             
-            if(inputText):
-                text = inputText        
-            elif(inputFile):
-                with codecs.open(inputFile,'r','utf-8') as file:
-                    text = file.read()
-            elif(inputFolder):
-                pass
-            else:
-                raise ParserException("Specify input")
-            
-            if(not text and not inputFolder):
-                raise ParserException("Input is empty")
-            
-            QApplication.setOverrideCursor(QCursor(Qt.BusyCursor))
-            
-            # parse all txt files in folder
-            if(inputFolder):
-                for filename in os.listdir(inputFolder):
-                    if filename.endswith(".txt"):
-                        try:
-                            with codecs.open(os.path.join(inputFolder,filename),'r','utf-8') as file:
-                                text = file.read()
-                            historyTexts = self.splitHistoryText(text)
-                            parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),
-                                            self.checkBoxSimpleNames.isChecked(),self.checkBoxExcludeNoHeroHH.isChecked())
-                            self.writeHistory(parsedTexts)
-                        except AnalyzerException as e:
-                            QApplication.restoreOverrideCursor()
-                            QMessageBox.critical(self, "Parsing Error", "File : {0}. {1}".format(filename,str(e)))
-            #parse text
-            else:
-                historyTexts = self.splitHistoryText(text)
-                parsedTexts = hhp.parseHistoryTexts(historyTexts,self.checkBoxIgnoreBetSize.isChecked(),
-                                self.checkBoxSimpleNames.isChecked(),self.checkBoxExcludeNoHeroHH.isChecked())
-                self.writeHistory(parsedTexts)
-                 
-        except (IOError, OSError) as e:
-            QApplication.restoreOverrideCursor()
-            QMessageBox.warning(self, "File Error", str(e))
-        except (ParserException, AnalyzerException) as e:
-            QApplication.restoreOverrideCursor()
-            QMessageBox.critical(self, "Parsing Error", str(e))
-        finally:
-            QApplication.restoreOverrideCursor()
-                  
+    def parseHistory(self):  
+      inputText = self.textEditHistory.toPlainText()
+      inputFile = self.lineEditInputFile.text()
+      inputFolder = self.lineEditInputFolder.text()
+      outputFile = self.lineEditOutputFile.text()
+      outputFolder = self.lineEditOutputFolder.text()
+      
+      options = HistoryParserOptions()
+      options.useSimpleNames = self.checkBoxSimpleNames.isChecked()
+      options.ignoreHeroBetSize = self.checkBoxIgnoreBetSize.isChecked()
+      options.parseWhenHeroPlays = self.checkBoxHeroPlays.isChecked()
+      options.parseWhenPreflopOnly = self.checkBoxPreflopOnly.isChecked()
+      options.parseWhenFlopShown = self.checkBoxFlopShown.isChecked()
+      options.parseWhenFlopOnly= self.checkBoxFlopOnly.isChecked()
+      options.parseWhenTurnShown = self.checkBoxTurnShown.isChecked()
+      options.parseWhenRiverShown = self.checkBoxRiverShown.isChecked()
+           
+      self.parserThread = ParserThread(inputText, inputFile, inputFolder, outputFile, outputFolder, options)
+      self.connect(self.parserThread,SIGNAL("updateParseButton"), self.updateParseButton)
+      self.connect(self.parserThread,SIGNAL("displayError"), self.displayError)
+      self.connect(self.parserThread,SIGNAL("displayWarning"), self.displayWarning)
+      self.parserThread.start()
+       
 
     def writeSettings(self):
       settings = QSettings()
       settings.beginGroup("MainWindow")
       settings.setValue("size", self.size())
       settings.setValue("pos", self.pos())
+      settings.endGroup()
       settings.setValue("inputFile", self.lineEditInputFile.text())
       settings.setValue("inputFolder", self.lineEditInputFolder.text())
       settings.setValue("outputFile", self.lineEditOutputFile.text())
       settings.setValue("outputFolder", self.lineEditOutputFolder.text())
       settings.setValue("ignoreBetSize", self.checkBoxIgnoreBetSize.isChecked())
       settings.setValue("simpleNames", self.checkBoxSimpleNames.isChecked())
-      settings.setValue("excludeNoHeroHH", self.checkBoxExcludeNoHeroHH.isChecked())
-        
-      settings.endGroup()
+      settings.setValue("heroPlays", self.checkBoxHeroPlays.isChecked())
+      settings.setValue("preflopOnly", self.checkBoxPreflopOnly.isChecked())
+      settings.setValue("flopShown", self.checkBoxFlopShown.isChecked())
+      settings.setValue("flopOnly", self.checkBoxFlopOnly.isChecked())
+      settings.setValue("turnShown", self.checkBoxTurnShown.isChecked())
+      settings.setValue("riverShown", self.checkBoxRiverShown.isChecked())
+          
  
     def readSettings(self):
       settings = QSettings()
@@ -181,26 +125,34 @@ class HandHistoryParserDlg(QDialog, Ui_HandHistoryParserDlg):
         self.resize(settings.value("size"))
       if settings.value("pos"):
         self.move(settings.value("pos"))
+      settings.endGroup()  
+        
       self.lineEditInputFile.setText(settings.value("inputFile"))
       self.lineEditInputFolder.setText(settings.value("inputFolder"))
       self.lineEditOutputFile.setText(settings.value("outputFile"))
       self.lineEditOutputFolder.setText(settings.value("outputFolder"))  
       self.checkBoxIgnoreBetSize.setChecked(True  if settings.value("ignoreBetSize") == "true" else False)  
       self.checkBoxSimpleNames.setChecked(True  if settings.value("simpleNames") == "true" else False)
-      self.checkBoxExcludeNoHeroHH.setChecked(True  if settings.value("excludeNoHeroHH") == "true" else False)  
+      self.checkBoxHeroPlays.setChecked(True  if settings.value("heroPlays") == "true" else False)  
+      self.checkBoxPreflopOnly.setChecked(True  if settings.value("preflopOnly") == "true" else False)  
+      self.checkBoxFlopShown.setChecked(True  if settings.value("flopShown") == "true" else False)  
+      self.checkBoxFlopOnly.setChecked(True  if settings.value("flopOnly") == "true" else False)  
+      self.checkBoxTurnShown.setChecked(True  if settings.value("turnShown") == "true" else False)  
+      self.checkBoxRiverShown.setChecked(True  if settings.value("riverShown") == "true" else False)  
         
-      settings.endGroup()
-        
-class ParserException(Exception):
-    pass        
-        
-app = QApplication(sys.argv)
-app.setOrganizationName("ZomBee")
-app.setOrganizationDomain("zom.bee")
-app.setApplicationName("Hand History Parser")
-dlg = HandHistoryParserDlg()
-dlg.show()
-sys.exit(app.exec_())
+  
+def startGUI():
+    app = QApplication(sys.argv)
+    app.setOrganizationName("ZomBee")
+    app.setOrganizationDomain("zom.bee")
+    app.setApplicationName("Hand History Parser")
+    tsw = HistoryParserWindow()
+    tsw.show()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    startGUI()     
+      
 
 
 
