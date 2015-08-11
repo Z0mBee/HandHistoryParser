@@ -27,7 +27,7 @@ class HandHistoryParser:
               continue
             # Print
             else:
-                handprinter = HandPrinter(analyzer, options.ignoreHeroBetSize, options.useSimpleNames)
+                handprinter = HandPrinter(analyzer, options.ignoreHeroBetSize, options.useSimpleNames, options.includeSiteName)
                 parsedHistory = handprinter.printHand()
                 parseResult.append((analyzer.handId, parsedHistory))
             
@@ -75,6 +75,7 @@ class HistoryParserOptions:
       self.parseWhenFlopOnly = False
       self.parseWhenTurnShown = False
       self.parseWhenRiverShown = False
+      self.includeSiteName = False
  
 
 

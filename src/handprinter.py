@@ -6,10 +6,11 @@ class HandPrinter:
     Prints analyzed hands
     '''
 
-    def __init__(self, analyzer, ignoreBetSize, useSimpleNames):
+    def __init__(self, analyzer, ignoreBetSize, useSimpleNames, includeSiteName):
         self.analyzer = analyzer;
         self.ingoreBetSize = ignoreBetSize
         self.useSimpleNames = useSimpleNames
+        self.includeSiteName = includeSiteName
         self._findSimplePlayerNames()
         
     def _getHeaderText(self):
@@ -17,14 +18,15 @@ class HandPrinter:
         text += "sblind = {0.sb}\r\n".format(self.analyzer)
         text += "bblind = {0.bb}\r\n".format(self.analyzer)
         text += "gtype = {0.gameType}\r\n".format(self.analyzer)
-        if(self.analyzer.pokerNetwork == PokerNetwork.IPOKER):
-            text += "network = IPoker\r\n"
-        elif(self.analyzer.pokerNetwork == PokerNetwork.POKER888):
-            text += "network = 888Poker\r\n"
-        elif(self.analyzer.pokerNetwork == PokerNetwork.STARS):
-            text += "network = PokerStars\r\n"
-        elif(self.analyzer.pokerNetwork == PokerNetwork.PARTY):         
-            text += "network = PartyPoker\r\n"
+        if(self.includeSiteName):
+          if(self.analyzer.pokerNetwork == PokerNetwork.IPOKER):
+              text += "network = IPoker\r\n"
+          elif(self.analyzer.pokerNetwork == PokerNetwork.POKER888):
+              text += "network = 888Poker\r\n"
+          elif(self.analyzer.pokerNetwork == PokerNetwork.STARS):
+              text += "network = PokerStars\r\n"
+          elif(self.analyzer.pokerNetwork == PokerNetwork.PARTY):         
+              text += "network = PartyPoker\r\n"
         return text
         
     def _getPlayerBalanceText(self):
@@ -123,7 +125,25 @@ class HandPrinter:
             else:
                 self.simpleName[player] = "P" + str(i)
         
+    def _sortBalancesToPFPositions(self):
+      sortedBalances = []
+      for idx, action in enumerate(self.analyzer.pfActions):
+        if(idx == 0):
+          firstName = action[0]
+        if(firstName == action[0] and idx > 0):
+          break
+        for balance in self.analyzer.playerBalances:
+          if(action[0] == balance[0]):    
+            sortedBalances.append(balance)
+            
+      for balance in self.analyzer.playerBalances:
+        if(balance not in sortedBalances):
+          sortedBalances.append(balance)
+      self.analyzer.playerBalances = sortedBalances
+                
+        
     def printHand(self):
+        self._sortBalancesToPFPositions()
         output = self._getHeaderText()
         output += self._getPlayerBalanceText()
         output += "\r\n"        

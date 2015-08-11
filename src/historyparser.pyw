@@ -90,6 +90,7 @@ class HistoryParserWindow(QMainWindow, Ui_HistoryParserWindow):
       options.parseWhenFlopOnly= self.checkBoxFlopOnly.isChecked()
       options.parseWhenTurnShown = self.checkBoxTurnShown.isChecked()
       options.parseWhenRiverShown = self.checkBoxRiverShown.isChecked()
+      options.includeSiteName = self.checkBoxSiteName.isChecked()
            
       self.parserThread = ParserThread(inputText, inputFile, inputFolder, outputFile, outputFolder, options)
       self.connect(self.parserThread,SIGNAL("updateParseButton"), self.updateParseButton)
@@ -111,6 +112,7 @@ class HistoryParserWindow(QMainWindow, Ui_HistoryParserWindow):
       settings.setValue("ignoreBetSize", self.checkBoxIgnoreBetSize.isChecked())
       settings.setValue("simpleNames", self.checkBoxSimpleNames.isChecked())
       settings.setValue("heroPlays", self.checkBoxHeroPlays.isChecked())
+      settings.setValue("includeSiteName", self.checkBoxSiteName.isChecked())
       settings.setValue("preflopOnly", self.checkBoxPreflopOnly.isChecked())
       settings.setValue("flopShown", self.checkBoxFlopShown.isChecked())
       settings.setValue("flopOnly", self.checkBoxFlopOnly.isChecked())
@@ -134,6 +136,7 @@ class HistoryParserWindow(QMainWindow, Ui_HistoryParserWindow):
       self.checkBoxIgnoreBetSize.setChecked(True  if settings.value("ignoreBetSize") == "true" else False)  
       self.checkBoxSimpleNames.setChecked(True  if settings.value("simpleNames") == "true" else False)
       self.checkBoxHeroPlays.setChecked(True  if settings.value("heroPlays") == "true" else False)  
+      self.checkBoxSiteName.setChecked(True  if settings.value("includeSiteName") == "true" else False) 
       self.checkBoxPreflopOnly.setChecked(True  if settings.value("preflopOnly") == "true" else False)  
       self.checkBoxFlopShown.setChecked(True  if settings.value("flopShown") == "true" else False)  
       self.checkBoxFlopOnly.setChecked(True  if settings.value("flopOnly") == "true" else False)  
