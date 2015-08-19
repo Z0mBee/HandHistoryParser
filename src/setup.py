@@ -23,9 +23,16 @@ if sys.platform == 'win32':
 options = {
     'build_exe': {
         'icon' : 'images/transfer.ico',
-		'include_files': [
-			'images/transfer.ico'
-		]
+		'excludes' : [
+            'PyQt4.QtXml',
+            'PyQt4.QtTest',
+            'PyQt4.QtSvg',
+            'PyQt4.QtSql',
+            'PyQt4.QtScript',
+            'PyQt4.QtOpenGL',
+            'PyQt4.QtNetwork',
+            'PyQt4.Qsci'
+        ]       
     }
 }
 
@@ -34,7 +41,7 @@ executables = [
 ]
 
 setup(name='HandHistoryParser',
-      version='0.1',
+      version='1.1',
       description='Parsers poker hand histories',
       options=options,
       executables=executables
